@@ -3,7 +3,7 @@ import { CreateTodoRequest } from '../requests/CreateTodoRequest'
 import { UpdateTodoRequest } from '../requests/UpdateTodoRequest'
 import { createLogger } from '../utils/logger'
 import * as uuid from 'uuid'
-import { TodoUpdate } from '../models/TodoUpdate'
+// import { TodoUpdate } from '../models/TodoUpdate'
 
 const logger = createLogger('Todos')
 
@@ -30,8 +30,8 @@ export async function getTodosForUser(userId: string) {
 
 export async function updateTodo(userId: string, todoId: string, updatedTodo: UpdateTodoRequest) {
     logger.info(`User id: ${userId}, Todo id: ${todoId}`)
-    const todoUpdate: TodoUpdate = {...updatedTodo}
-    return await todosAccess.updateTodo(userId, todoId, todoUpdate)
+    // const todoUpdate: TodoUpdate = {...updatedTodo}
+    return await todosAccess.updateTodo(userId, todoId, updatedTodo)
 }
 
 export async function deleteTodo(userId: string, todoId: string) {
