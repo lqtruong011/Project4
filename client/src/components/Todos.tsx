@@ -27,13 +27,15 @@ interface TodosState {
   todos: Todo[]
   newTodoName: string
   loadingTodos: boolean
+  page: number
 }
 
 export class Todos extends React.PureComponent<TodosProps, TodosState> {
   state: TodosState = {
     todos: [],
     newTodoName: '',
-    loadingTodos: true
+    loadingTodos: true,
+    page: 1,
   }
 
   handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -55,12 +57,13 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
         dueDate
       })
       this.setState({
-        todos: [...this.state.todos, newTodo],
         newTodoName: ''
       })
     } catch (e) {
       alert(`Todo creation failed`)
     }
+
+    this.onGetToDos(this.state.page)
   }
 
   onTodoDelete = async (todoId: string) => {
@@ -72,6 +75,8 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
     } catch {
       alert('Todo deletion failed')
     }
+
+    this.onGetToDos(this.state.page)
   }
 
   onTodoCheck = async (pos: number) => {
@@ -98,12 +103,19 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
   }
 
   async componentDidMount() {
+    const page = this.state.page;
+    this.onGetToDos(page);
+  }
+
+  async onGetToDos(page: number) {
     try {
-      const todos = await getTodos(this.props.auth.getIdToken())
+      const todos = await getTodos(this.props.auth.getIdToken(), page)  
       this.setState({
         todos,
-        loadingTodos: false
+        loadingTodos: false,
       })
+      console.log("page= "+this.state.page);      
+      
     } catch (e) {
       let error_message = 'Failed to fetch todos: '
       if (e instanceof Error) {
@@ -111,6 +123,20 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
       }
       alert(error_message)
     }
+  }
+
+  onGetNextPage() {
+    const pageCurrent = this.state.page;
+    this.setState({loadingTodos: true})
+    this.setState({ page: pageCurrent + 1 })
+    this.onGetToDos(this.state.page+1)
+  }
+
+  onGetPrevPage() {
+    const pageCurrent = this.state.page;
+    this.setState({loadingTodos: true})
+    this.setState({ page: pageCurrent - 1 })
+    this.onGetToDos(this.state.page-1)
   }
 
   render() {
@@ -213,6 +239,24 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
             </Grid.Row>
           )
         })}
+        <Grid.Column width={1} floated="left">
+          <Button
+            icon
+            color="grey"
+            onClick={() => this.onGetPrevPage()}
+          >
+            <Icon name="arrow left" />
+          </Button>
+        </Grid.Column>
+        <Grid.Column width={1} floated="right">
+          <Button
+            icon
+            color="grey"
+            onClick={() => this.onGetNextPage()}
+          >
+            <Icon name="arrow right" />
+          </Button>
+        </Grid.Column>
       </Grid>
     )
   }

@@ -61,7 +61,7 @@ functions:
     events:
       - http:
           method: get
-          path: todos
+          path: todos/page/{page}
           cors: true
           authorizer: Auth
     iamRoleStatements:
